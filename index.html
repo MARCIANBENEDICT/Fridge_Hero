@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fridge Hero</title>
+    <style>
+      :root {
+        --bg: #0b1220;
+        --panel: rgba(255, 255, 255, 0.08);
+        --card: rgba(255, 255, 255, 0.92);
+        --text: #eaf0ff;
+        --muted: rgba(234, 240, 255, 0.75);
+        --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+        --accent: #7c5cff;
+        --accent2: #22c55e;
+        --danger: #ef4444;
+        --radius: 18px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans",
+          "Apple Color Emoji", "Segoe UI Emoji";
+        background: radial-gradient(1200px 800px at 20% 10%, rgba(124, 92, 255, 0.35), transparent 55%),
+          radial-gradient(900px 700px at 80% 25%, rgba(34, 197, 94, 0.22), transparent 55%),
+          radial-gradient(700px 500px at 50% 90%, rgba(56, 189, 248, 0.18), transparent 60%),
+          var(--bg);
+        color: var(--text);
+        display: grid;
+        place-items: center;
+        padding: 28px 16px;
+      }
+
+      .app {
+        width: 100%;
+        max-width: 860px;
+      }
+
+      header {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        letter-spacing: -0.02em;
+      }
+
+      .byline {
+        margin: -4px 0 0;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        color: rgba(234, 240, 255, 0.86);
+      }
+
+      .subtitle {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 18px;
+        backdrop-filter: blur(10px);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      @media (max-width: 720px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      label {
+        display: grid;
+        gap: 8px;
+        font-size: 0.95rem;
+        color: rgba(234, 240, 255, 0.9);
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 12px 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        outline: none;
+      }
+
+      input[type="text"]::placeholder {
+        color: rgba(234, 240, 255, 0.55);
+      }
+
+      input[type="text"]:focus {
+        border-color: rgba(124, 92, 255, 0.75);
+        box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.18);
+      }
+
+      .actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 14px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        border: 0;
+        border-radius: 999px;
+        padding: 12px 16px;
+        cursor: pointer;
+        color: white;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        background: linear-gradient(135deg, var(--accent), #3b82f6);
+        box-shadow: 0 12px 30px rgba(124, 92, 255, 0.25);
+        transition: transform 0.08s ease, filter 0.2s ease, opacity 0.2s ease;
+      }
+
+      button:hover {
+        filter: brightness(1.05);
+      }
+
+      button:active {
+        transform: translateY(1px);
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+
+      .hint {
+        color: var(--muted);
+        font-size: 0.95rem;
+        line-height: 1.4;
+      }
+
+      .result {
+        margin-top: 18px;
+      }
+
+      .card {
+        background: var(--card);
+        color: #0b1220;
+        border-radius: 18px;
+        padding: 18px;
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+      }
+
+      .cardHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 10px;
+      }
+
+      .badge {
+        flex: 0 0 auto;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(34, 197, 94, 0.12);
+        color: #065f46;
+        font-weight: 700;
+        font-size: 0.85rem;
+      }
+
+      .dish {
+        margin: 0;
+        font-size: 1.35rem;
+        letter-spacing: -0.015em;
+      }
+
+      .meta {
+        margin: 0;
+        color: rgba(11, 18, 32, 0.7);
+        font-size: 0.95rem;
+      }
+
+      ol {
+        margin: 12px 0 0;
+        padding-left: 1.1rem;
+        line-height: 1.6;
+      }
+
+      .error {
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        background: rgba(239, 68, 68, 0.12);
+        color: #fee2e2;
+        border-radius: 14px;
+        padding: 12px 14px;
+      }
+
+      .small {
+        font-size: 0.9rem;
+        color: rgba(11, 18, 32, 0.65);
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header>
+        <h1>Fridge Hero</h1>
+        <p class="byline">Marcian Benedict</p>
+        <p class="subtitle">
+          Type three ingredients you have at home. Click <strong>Cook Magic</strong>. Fridge Hero will invent a fancy dish name
+          and a simple 3‑step recipe.
+        </p>
+      </header>
+
+      <section class="panel" aria-label="Ingredient inputs">
+        <div class="grid">
+          <label>
+            Ingredient 1
+            <input id="ing1" type="text" placeholder="e.g., eggs" autocomplete="off" />
+          </label>
+          <label>
+            Ingredient 2
+            <input id="ing2" type="text" placeholder="e.g., spinach" autocomplete="off" />
+          </label>
+          <label>
+            Ingredient 3
+            <input id="ing3" type="text" placeholder="e.g., garlic" autocomplete="off" />
+          </label>
+        </div>
+
+        <div class="actions">
+          <button id="cookBtn" type="button">Cook Magic</button>
+          <div class="hint">Tip: keep ingredients simple (1–2 words). Example: “chicken”, “rice”, “lemon”.</div>
+        </div>
+
+        <div id="result" class="result" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <script>
+      const GEMINI_API_KEY = "PASTE_YOUR_GEMINI_API_KEY_HERE";
+
+      const cookBtn = document.getElementById("cookBtn");
+      const resultEl = document.getElementById("result");
+
+      function cleanIngredient(value) {
+        return String(value || "")
+          .trim()
+          .replace(/\s+/g, " ")
+          .slice(0, 40);
+      }
+
+      function buildPrompt(ingredients) {
+        const list = ingredients.map((x) => `- ${x}`).join("\n");
+        return [
+          "You are Fridge Hero, a helpful chef.",
+          "Create ONE fancy dish name and a simple recipe with EXACTLY 3 steps.",
+          "Use the ingredients below as the main components (you may add common pantry items like salt, pepper, oil, water).",
+          "Keep steps short and beginner-friendly.",
+          "",
+          "Return STRICT JSON only (no markdown fences, no extra text) in this format:",
+          '{ "dishName": "…", "steps": ["step 1", "step 2", "step 3"] }',
+          "",
+          "Ingredients:",
+          list,
+        ].join("\n");
+      }
+
+      function renderCard({ dishName, steps, ingredients }) {
+        const safeDish = dishName || "Mystery Hero Dish";
+        const safeSteps = Array.isArray(steps) ? steps : [];
+
+        const meta = `Built from: ${ingredients.join(", ")}`;
+
+        resultEl.innerHTML = `
+          <article class="card" aria-label="Recipe card">
+            <div class="cardHeader">
+              <div>
+                <h2 class="dish">${escapeHtml(safeDish)}</h2>
+                <p class="meta">${escapeHtml(meta)}</p>
+              </div>
+              <div class="badge">3 steps</div>
+            </div>
+            <ol>
+              ${safeSteps
+                .slice(0, 3)
+                .map((s) => `<li>${escapeHtml(String(s))}</li>`)
+                .join("")}
+            </ol>
+            <div class="small">Want a different vibe? Try “spicy”, “vegan”, or “high‑protein” in an ingredient field.</div>
+          </article>
+        `;
+      }
+
+      function renderError(message) {
+        resultEl.innerHTML = `<div class="error"><strong>Oops.</strong> ${escapeHtml(message)}</div>`;
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      async function callGemini(promptText) {
+        const endpoint =
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" +
+          encodeURIComponent(GEMINI_API_KEY);
+
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [{ text: promptText }],
+              },
+            ],
+          }),
+        });
+
+        if (!response.ok) {
+          const bodyText = await response.text().catch(() => "");
+          throw new Error(`Gemini request failed (${response.status}). ${bodyText}`);
+        }
+
+        const data = await response.json();
+        const resultText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!resultText) throw new Error("Gemini returned no text. Try again.");
+        return resultText;
+      }
+
+      function tryParseJson(text) {
+        const trimmed = String(text || "").trim();
+        try {
+          return JSON.parse(trimmed);
+        } catch {
+          const start = trimmed.indexOf("{");
+          const end = trimmed.lastIndexOf("}");
+          if (start !== -1 && end !== -1 && end > start) {
+            const candidate = trimmed.slice(start, end + 1);
+            try {
+              return JSON.parse(candidate);
+            } catch {}
+          }
+        }
+        return null;
+      }
+
+      function extractThreeStepsFromText(text) {
+        const raw = String(text || "").trim();
+        if (!raw) return ["Step 1: Prep your ingredients.", "Step 2: Cook and combine.", "Step 3: Taste and serve."];
+
+        
+        const lines = raw
+          .split(/\r?\n+/g)
+          .map((l) => l.trim())
+          .filter(Boolean)
+          .map((l) => l.replace(/^(\d+[\).\s-]+|[-*]\s+)/, "").trim())
+          .filter(Boolean);
+
+        const candidates = lines.length ? lines : raw.split(/(?:\.\s+|;\s+|:\s+)/g).map((s) => s.trim()).filter(Boolean);
+
+        const steps = candidates.slice(0, 3);
+        while (steps.length < 3) steps.push("Add a finishing touch and serve.");
+        return steps.map((s) => s.replace(/\s+/g, " ").slice(0, 180));
+      }
+
+      async function onCook() {
+        const ing1 = cleanIngredient(document.getElementById("ing1").value);
+        const ing2 = cleanIngredient(document.getElementById("ing2").value);
+        const ing3 = cleanIngredient(document.getElementById("ing3").value);
+
+        const ingredients = [ing1, ing2, ing3].filter(Boolean);
+
+        if (!GEMINI_API_KEY || GEMINI_API_KEY.includes("PASTE_YOUR_GEMINI_API_KEY_HERE")) {
+          renderError("Paste your Gemini API key into GEMINI_API_KEY in index.html first.");
+          return;
+        }
+
+        if (ingredients.length === 0) {
+          renderError("Please enter at least one ingredient (ideally all three).");
+          return;
+        }
+
+        const originalText = cookBtn.textContent;
+        cookBtn.textContent = "Loading…";
+        cookBtn.disabled = true;
+        resultEl.innerHTML = "";
+
+        try {
+          const prompt = buildPrompt(ingredients);
+          const text = await callGemini(prompt);
+
+          const parsed = tryParseJson(text);
+          if (parsed?.dishName && Array.isArray(parsed?.steps)) {
+            renderCard({ dishName: parsed.dishName, steps: parsed.steps, ingredients });
+          } else {
+            // Fallback: turn plain text into a clean 3-step list.
+            renderCard({ dishName: "Fridge Hero Special", steps: extractThreeStepsFromText(text), ingredients });
+          }
+        } catch (err) {
+          renderError(err?.message || "Something went wrong calling Gemini.");
+        } finally {
+          cookBtn.textContent = originalText;
+          cookBtn.disabled = false;
+        }
+      }
+
+      cookBtn.addEventListener("click", onCook);
+      ["ing1", "ing2", "ing3"].forEach((id) => {
+        document.getElementById(id).addEventListener("keydown", (e) => {
+          if (e.key === "Enter") onCook();
+        });
+      });
+    </script>
+  </body>
+</html>
