@@ -255,7 +255,8 @@
     </main>
 
     <script>
-      const GEMINI_API_KEY = "PASTE_YOUR_GEMINI_API_KEY_HERE";
+      // Netlify deployment note:
+      // This app calls a Netlify Function (serverless) so your Gemini key stays secret.
 
       const cookBtn = document.getElementById("cookBtn");
       const resultEl = document.getElementById("result");
@@ -322,32 +323,23 @@
           .replaceAll("'", "&#039;");
       }
 
-      async function callGemini(promptText) {
-        const endpoint =
-          "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" +
-          encodeURIComponent(GEMINI_API_KEY);
-
-        const response = await fetch(endpoint, {
+      async function callFridgeHero(ingredients) {
+        const response = await fetch("/.netlify/functions/cook", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            contents: [
-              {
-                parts: [{ text: promptText }],
-              },
-            ],
+            ingredients,
           }),
         });
 
         if (!response.ok) {
           const bodyText = await response.text().catch(() => "");
-          throw new Error(`Gemini request failed (${response.status}). ${bodyText}`);
+          throw new Error(`Request failed (${response.status}). ${bodyText}`);
         }
 
         const data = await response.json();
-        const resultText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!resultText) throw new Error("Gemini returned no text. Try again.");
-        return resultText;
+        if (!data) throw new Error("Server returned no data.");
+        return data;
       }
 
       function tryParseJson(text) {
@@ -393,11 +385,6 @@
 
         const ingredients = [ing1, ing2, ing3].filter(Boolean);
 
-        if (!GEMINI_API_KEY || GEMINI_API_KEY.includes("PASTE_YOUR_GEMINI_API_KEY_HERE")) {
-          renderError("Paste your Gemini API key into GEMINI_API_KEY in index.html first.");
-          return;
-        }
-
         if (ingredients.length === 0) {
           renderError("Please enter at least one ingredient (ideally all three).");
           return;
@@ -409,15 +396,13 @@
         resultEl.innerHTML = "";
 
         try {
-          const prompt = buildPrompt(ingredients);
-          const text = await callGemini(prompt);
+          const data = await callFridgeHero(ingredients);
 
-          const parsed = tryParseJson(text);
-          if (parsed?.dishName && Array.isArray(parsed?.steps)) {
-            renderCard({ dishName: parsed.dishName, steps: parsed.steps, ingredients });
+          if (data?.dishName && Array.isArray(data?.steps)) {
+            renderCard({ dishName: data.dishName, steps: data.steps, ingredients });
           } else {
-            // Fallback: turn plain text into a clean 3-step list.
-            renderCard({ dishName: "Fridge Hero Special", steps: extractThreeStepsFromText(text), ingredients });
+            const rawText = data?.text || JSON.stringify(data);
+            renderCard({ dishName: "Fridge Hero Special", steps: extractThreeStepsFromText(rawText), ingredients });
           }
         } catch (err) {
           renderError(err?.message || "Something went wrong calling Gemini.");
